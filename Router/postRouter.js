@@ -6,7 +6,7 @@ const auth = require("../middleware/authMiddleware")
 const postRouter = Router()
 
 
-postRouter.post("/post", createPost)
+postRouter.post("/post",auth, createPost)
 postRouter.get("/posts", getPosts)
 postRouter.get("/posts/:id", getSinglePost)
 postRouter.put("/posts/:id", auth,updatePost)
