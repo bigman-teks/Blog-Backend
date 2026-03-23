@@ -1,5 +1,6 @@
 const { default: slugify } = require("slugify")
 const Post = require("../schema/postSchema")
+const { post } = require("../Router/postRouter")
 
 
 //getPost
@@ -23,7 +24,7 @@ const getSinglePost = async(req, res) =>{
         const {id} = req.params
         const post = await Post.findById(id);
         if(!post)
-            return res.status(400).json({Message: "Post with this ID not find"})
+            return res.status(400).json({message: "Post with this ID not find"})
         res.status(200).json(post)
 
        } catch (error) {
@@ -85,7 +86,7 @@ const updatePost = async (req, res) => {
 
         res.status(200).json({
             message: "Post updated successfully",
-            product: updatedPost
+            post: updatedPost
         })
 
     } catch (error) {
@@ -99,16 +100,24 @@ const updatePost = async (req, res) => {
 
 const createPost = async (req, res) => {
   try {
-    const slug = slugify(req.body.title, { lower: true });
+    const { title, content } = req.body;
+
+    if (!title || !content) {
+      return res.status(400).json({ message: "All fields required" });
+    }
 
     const post = await Post.create({
-      title: req.body.title,
-      content: req.body.content,
-      slug,
-      author: req.user.id
+      title,
+      content,
+      author: req.user.id, // from auth middleware
+      slug: slugify(title, { lower: true })
     });
 
-    res.json(post);
+    res.status(201).json({
+      message: "Post created successfully",
+      post
+    });
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
